@@ -264,10 +264,11 @@ def get_val_info(model, valloader, loss_fn, device, use_tqdm=False):
             preds = model(allimgs.to(device), rots.to(device),
                           trans.to(device), intrins.to(device), post_rots.to(device),
                           post_trans.to(device))
+            #打印preds
             #print(f"语义分割preds{preds.shape}")
             # 设置打印不折叠
-            torch.set_printoptions(threshold=float('inf'))
-            print(f"语义分割preds{preds[0]}")
+            #torch.set_printoptions(threshold=float('inf'))
+            #print(f"语义分割preds{preds[0]}")
             
             
             binimgs = binimgs.to(device) 

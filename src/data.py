@@ -285,6 +285,18 @@ def compile_data(version, dataroot, data_aug_conf, grid_conf, bsz,
                          grid_conf=grid_conf)
     valdata = parser(nusc, is_train=False, data_aug_conf=data_aug_conf,
                        grid_conf=grid_conf)
+    for i in range(10):
+        train_sample = traindata[i]
+        val_sample = valdata[i]
+        for i, (a, b) in enumerate(zip(train_sample, val_sample)):
+            if torch.is_tensor(a):
+                print(f"Item {i} equal:", torch.allclose(a, b))
+            else:
+                print(f"Item {i} equal:", a == b)
+
+    
+    
+
 
     trainloader = torch.utils.data.DataLoader(traindata, batch_size=bsz,
                                               shuffle=True,

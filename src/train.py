@@ -21,14 +21,18 @@ def train(version,
             gpuid=1,
 
             H=480, W=640,
-            resize_lim=(0.193, 0.225),
+            #resize_lim=(0.193, 0.225),
+            #这里将resize_lim改为max(128/480, 352/640)，
+            resize_lim=(0.52, 0.58),
             final_dim=(128, 352),
             bot_pct_lim=(0.0, 0.22),
-            #小样本拟合时关闭随机旋转缩放
+            #小样本拟合时关闭随机旋转
             # rot_lim=(-5.4, 5.4),
             rot_lim=(0, 0),
-            #小样本拟合时关闭数据增强
+            
+            #小样本拟合时关闭随机翻转
             rand_flip=False,
+
             ncams=4,
             max_grad_norm=5.0,
             pos_weight=4,
@@ -105,6 +109,8 @@ def train(version,
 
             if counter % 10 == 0:
                 print(counter, loss.item())
+                _, _, iou = get_batch_iou(preds, binimgs)
+                print('iou', iou)
                 writer.add_scalar('train/loss', loss, counter)
 
             if counter % 50 == 0:
@@ -114,6 +120,7 @@ def train(version,
                 writer.add_scalar('train/step_time', t1 - t0, counter)
 
             if counter % val_step == 0:
+                
                 val_info = get_val_info(model, valloader, loss_fn, device)
                 print('VAL', val_info)
                 writer.add_scalar('val/loss', val_info['loss'], counter)
