@@ -82,7 +82,7 @@ class NuscData(torch.utils.data.Dataset):
         #scenes = create_splits_scenes()[split]
 
         #这里因为自己设定的场景有限，所以直接列出scene_token
-        myscenes = ["downtown_west"]
+        myscenes = ["downtown_west_0","downtown_west_1","downtown_west_2"]
         scenes = []
         scenes = [self.nusc.get('scene', scene)['name'] for scene in myscenes]
         print(scenes)

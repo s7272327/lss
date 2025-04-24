@@ -38,8 +38,8 @@ def train(version,
             pos_weight=4,
             logdir='./runs',
 
-            xbound=[-2.6, 2.6, 0.05],
-            ybound=[-2.6, 2.6, 0.05],
+            xbound=[-3, 3, 0.05],
+            ybound=[-3, 3, 0.05],
             zbound=[-1.0, 1.0, 2.0],
             dbound=[0.5, 2.5, 0.05],
 
