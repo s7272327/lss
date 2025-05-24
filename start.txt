@@ -1,0 +1,12 @@
+训练开始命令
+python main.py train mini --dataroot=./mydataset --logdir=./runs/ --gpuid=0
+
+验证命令
+python main.py eval_model_iou mini --modelf=./runs/model1270000.pt --dataroot=./mydataset --gpuid=0
+
+开启tensorboard ***注意要先cd到*** my-lift-splat-shoot文件夹
+tensorboard --logdir=./runs --port=6006
+
+可视化结果命令
+python main.py viz_model_preds mini --modelf=./runs/model1270000.pt --dataroot=./mydataset --map_folder=./mydataset/mini
+

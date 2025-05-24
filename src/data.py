@@ -82,7 +82,11 @@ class NuscData(torch.utils.data.Dataset):
         #scenes = create_splits_scenes()[split]
 
         #这里因为自己设定的场景有限，所以直接列出scene_token
-        myscenes = ["downtown_west_0","downtown_west_1","downtown_west_2"]
+        if self.is_train:
+            myscenes = ["downtown_west_0","downtown_west_1","downtown_west_2","downtown_west_3","downtown_west_4","downtown_west_5"]
+            #myscenes = ["downtown_west_0"]
+        else:
+            myscenes = ["downtown_west_1"]
         scenes = []
         scenes = [self.nusc.get('scene', scene)['name'] for scene in myscenes]
         print(scenes)
@@ -203,12 +207,13 @@ class NuscData(torch.utils.data.Dataset):
             
             pts = box.bottom_corners()[:2].T
             
+            ##########这段膨胀代码有问题，先不膨胀################
             #这里对pts做适当的膨胀
             # 计算中心点
-            center = np.mean(pts, axis=0, keepdims=True)
-            # 所有点向中心拉远一定比例，比如 1.3 倍
-            pts = (pts - center) * 1.5 + center
-            pts = np.round(pts).astype(np.int32)
+            # center = np.mean(pts, axis=0, keepdims=True)
+            # # 所有点向中心拉远一定比例，比如 1.3 倍
+            # pts = (pts - center) * 1.5 + center
+            # pts = np.round(pts).astype(np.int32)
             
             pts = np.round(
                 (pts - self.bx[:2] + self.dx[:2]/2.) / self.dx[:2]
@@ -238,6 +243,14 @@ class NuscData(torch.utils.data.Dataset):
 
     def __len__(self):
         return len(self.ixes)
+    
+    def get_ego_pose(self,rec):
+        egopose = self.nusc.get('ego_pose',
+                                 self.nusc.get('sample_data', rec['data']['CAM_FRONT'])['ego_pose_token'])
+        trans = np.array(egopose['translation'])
+        return trans
+
+        
 
 
 class VizData(NuscData):
@@ -264,8 +277,9 @@ class SegmentationData(NuscData):
         cams = self.choose_cams()
         imgs, rots, trans, intrins, post_rots, post_trans = self.get_image_data(rec, cams)
         binimg = self.get_binimg(rec)
+        ego_poses = self.get_ego_pose(rec)
         
-        return imgs, rots, trans, intrins, post_rots, post_trans, binimg
+        return imgs, rots, trans, intrins, post_rots, post_trans, binimg, ego_poses
 
 
 def worker_rnd_init(x):

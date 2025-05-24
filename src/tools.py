@@ -289,17 +289,26 @@ def get_val_info(model, valloader, loss_fn, device, use_tqdm=False):
 
 
 def add_ego(bx, dx):
-    # approximate rear axel
-    W = 1.85
+    # 无人机宽度和长度（单位：米）
+    L = 0.23  # length
+    W = 0.23  # width
+
+    # 以无人机中心为中心点，构建矩形四个顶点
     pts = np.array([
-        [-4.084/2.+0.5, W/2.],
-        [4.084/2.+0.5, W/2.],
-        [4.084/2.+0.5, -W/2.],
-        [-4.084/2.+0.5, -W/2.],
+        [-L/2, W/2],
+        [L/2, W/2],
+        [L/2, -W/2],
+        [-L/2, -W/2],
     ])
+
+    # 将坐标从米转为像素坐标（在BEV网格中）
     pts = (pts - bx) / dx
-    pts[:, [0,1]] = pts[:, [1,0]]
-    plt.fill(pts[:, 0], pts[:, 1], '#76b900')
+
+    # 交换xy轴以匹配图像显示方向
+    pts[:, [0, 1]] = pts[:, [1, 0]]
+
+    # 填充无人机位置
+    plt.fill(pts[:, 0], pts[:, 1], '#76b900')  # 绿色
 
 
 def get_nusc_maps(map_folder):

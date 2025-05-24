@@ -9,6 +9,7 @@ from time import time
 from tensorboardX import SummaryWriter
 import numpy as np
 import os
+from PIL import Image
 
 from .models import compile_model
 from .data import compile_data
@@ -20,18 +21,18 @@ def train(version,
             nepochs=10000,
             gpuid=1,
 
-            H=480, W=640,
-            #resize_lim=(0.193, 0.225),
+            H=900, W=1600,
+            resize_lim=(0.193, 0.225),
             #这里将resize_lim改为max(128/480, 352/640)，
-            resize_lim=(0.52, 0.58),
+            #resize_lim=(0.52, 0.58),
             final_dim=(128, 352),
             bot_pct_lim=(0.0, 0.22),
             #小样本拟合时关闭随机旋转
-            # rot_lim=(-5.4, 5.4),
-            rot_lim=(0, 0),
+            rot_lim=(-5.4, 5.4),
+            #rot_lim=(0, 0),
             
             #小样本拟合时关闭随机翻转
-            rand_flip=False,
+            rand_flip=True,
 
             ncams=4,
             max_grad_norm=5.0,
@@ -89,7 +90,7 @@ def train(version,
         np.random.seed()
         #bsz = 2,每次调用两次get_item,imgs的形状为(2, C, H, W……)，所以一共20个sample，会循环10次
         #nepochs=10000,所以会循环10万次，couter一直到100000
-        for batchi, (imgs, rots, trans, intrins, post_rots, post_trans, binimgs) in enumerate(trainloader):
+        for batchi, (imgs, rots, trans, intrins, post_rots, post_trans, binimgs,ego_pose) in enumerate(trainloader):
             t0 = time()
             opt.zero_grad()
             preds = model(imgs.to(device),
@@ -100,6 +101,10 @@ def train(version,
                     post_trans.to(device),
                     )
             binimgs = binimgs.to(device)
+            #打印binimgs并查看
+            # img0 = (binimgs[0, 0].cpu().numpy() * 255).astype(np.uint8)
+            # Image.fromarray(img0).save(f"binimgs{batchi}_0.png")
+
             loss = loss_fn(preds, binimgs)
             loss.backward()
             torch.nn.utils.clip_grad_norm_(model.parameters(), max_grad_norm)
